@@ -12,7 +12,7 @@ interface TicketListProps {
   assignees: Assignee[];
   expanded: Set<string>;
   onToggleExpand: (ticketId: string) => void;
-  onTicketReorder: (draggedId: string, targetId: string) => void;
+  onTicketReorder?: (draggedId: string, targetId: string) => void;
   onEditTicket: (ticket: Ticket) => void;
   onDeleteTicket: (ticket: Ticket) => void;
 }
@@ -51,7 +51,7 @@ const TicketList: React.FC<TicketListProps> = ({ tickets, assignees, expanded, o
   const handleDrop = (e: React.DragEvent, targetTicketId: string) => {
     e.preventDefault();
     const draggedTicketId = e.dataTransfer.getData('text/plain');
-    if (draggedTicketId && draggedTicketId !== targetTicketId) {
+    if (draggedTicketId && draggedTicketId !== targetTicketId && onTicketReorder) {
         onTicketReorder(draggedTicketId, targetTicketId);
     }
     handleDragEnd();
@@ -76,7 +76,7 @@ const TicketList: React.FC<TicketListProps> = ({ tickets, assignees, expanded, o
            return (
             <div
               key={ticket.id}
-              draggable="true"
+              draggable={onTicketReorder !== undefined}
               onDragStart={(e) => handleDragStart(e, ticket.id)}
               onDragOver={(e) => handleDragOver(e, ticket.id)}
               onDragLeave={handleDragLeave}
