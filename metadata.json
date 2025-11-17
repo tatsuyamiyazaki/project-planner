@@ -1,0 +1,5 @@
+{
+  "name": "Project Planner",
+  "description": "An interactive Gantt chart application for managing development projects. It features a ticket list with hierarchical relationships, a corresponding Gantt chart, and the ability to manage multiple projects. Users can drag, drop, and resize tasks directly on the timeline to update project schedules dynamically.",
+  "requestFramePermissions": []
+}
