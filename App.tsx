@@ -16,43 +16,11 @@ type ModalState =
   | { type: 'DELETE_TICKET'; ticket: Ticket }
   | { type: 'MANAGE_ASSIGNEES' };
 
-const STORAGE_KEY = 'project-planner-data';
-
-const ALL_PROJECTS_ID = '__ALL_PROJECTS__';
-
-const loadFromStorage = () => {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const data = JSON.parse(stored);
-      return {
-        projects: data.projects || PROJECTS,
-        assignees: data.assignees || ASSIGNEES,
-        tickets: (data.tickets || TICKETS).map((t: any) => ({
-          ...t,
-          startDate: new Date(t.startDate),
-          endDate: new Date(t.endDate)
-        })),
-        selectedProjectId: data.selectedProjectId || PROJECTS[0]?.id || ''
-      };
-    }
-  } catch (e) {
-    console.error('Failed to load data from storage:', e);
-  }
-  return {
-    projects: PROJECTS,
-    assignees: ASSIGNEES,
-    tickets: TICKETS,
-    selectedProjectId: PROJECTS[0]?.id || ''
-  };
-};
-
 const App: React.FC = () => {
-  const initialData = useMemo(loadFromStorage, []);
-  const [projects, setProjects] = useState<Project[]>(initialData.projects);
-  const [assignees, setAssignees] = useState<Assignee[]>(initialData.assignees);
-  const [tickets, setTickets] = useState<Ticket[]>(initialData.tickets);
-  const [selectedProjectId, setSelectedProjectId] = useState<string>(initialData.selectedProjectId);
+  const [projects, setProjects] = useState<Project[]>(PROJECTS);
+  const [assignees, setAssignees] = useState<Assignee[]>(ASSIGNEES);
+  const [tickets, setTickets] = useState<Ticket[]>(TICKETS);
+  const [selectedProjectId, setSelectedProjectId] = useState<string>(PROJECTS[0]?.id || '');
   
   const [modalState, setModalState] = useState<ModalState>({ type: 'NONE' });
 
@@ -68,27 +36,9 @@ const App: React.FC = () => {
   const isSyncingScroll = useRef(false);
 
   const [expanded, setExpanded] = useState<Set<string>>(() => {
-    const parentIds = new Set(initialData.tickets.filter(t => initialData.tickets.some(c => c.parentId === t.id)).map(t => t.id));
+    const parentIds = new Set(TICKETS.filter(t => TICKETS.some(c => c.parentId === t.id)).map(t => t.id));
     return parentIds;
   });
-
-  useEffect(() => {
-    try {
-      const dataToSave = {
-        projects,
-        assignees,
-        tickets: tickets.map(t => ({
-          ...t,
-          startDate: t.startDate.toISOString(),
-          endDate: t.endDate.toISOString()
-        })),
-        selectedProjectId
-      };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
-    } catch (e) {
-      console.error('Failed to save data to storage:', e);
-    }
-  }, [projects, assignees, tickets, selectedProjectId]);
 
   const toggleExpand = useCallback((ticketId: string) => {
     setExpanded(prev => {
@@ -104,61 +54,9 @@ const App: React.FC = () => {
   
   const currentProject = useMemo(() => projects.find(p => p.id === selectedProjectId), [projects, selectedProjectId]);
 
-  const projectTickets = useMemo(() => 
-    selectedProjectId === ALL_PROJECTS_ID ? tickets : tickets.filter(t => t.projectId === selectedProjectId), 
-    [tickets, selectedProjectId]
-  );
+  const projectTickets = useMemo(() => tickets.filter(t => t.projectId === selectedProjectId), [tickets, selectedProjectId]);
 
   const visibleTickets = useMemo((): TicketWithLevel[] => {
-    if (selectedProjectId === ALL_PROJECTS_ID) {
-      const projectMap = new Map(projects.map(p => [p.id, p]));
-      const result: TicketWithLevel[] = [];
-      
-      projects.forEach(project => {
-        const projectTicketsFiltered = tickets.filter(t => t.projectId === project.id && t.parentId === null);
-        projectTicketsFiltered.sort((a, b) => a.sortOrder - b.sortOrder);
-        
-        const childrenMap = new Map<string | null, string[]>();
-        tickets.filter(t => t.projectId === project.id).forEach(t => {
-          const children = childrenMap.get(t.parentId) || [];
-          children.push(t.id);
-          childrenMap.set(t.parentId, children);
-        });
-
-        const ticketMap = new Map<string, Ticket>(tickets.filter(t => t.projectId === project.id).map(t => [t.id, t]));
-        
-        for (const [parentId, children] of childrenMap.entries()) {
-          children.sort((a, b) => {
-            const ticketA = ticketMap.get(a)!;
-            const ticketB = ticketMap.get(b)!;
-            return ticketA.sortOrder - ticketB.sortOrder;
-          });
-          childrenMap.set(parentId, children);
-        }
-
-        const visit = (ticketId: string, level: number) => {
-          const ticket = ticketMap.get(ticketId);
-          if (!ticket) return;
-
-          const childrenIds = childrenMap.get(ticketId) || [];
-          result.push(Object.assign({}, ticket, { level, hasChildren: childrenIds.length > 0 }));
-
-          if (expanded.has(ticketId)) {
-            for (const childId of childrenIds) {
-              visit(childId, level + 1);
-            }
-          }
-        };
-
-        const rootIds = childrenMap.get(null) || [];
-        for (const ticketId of rootIds) {
-          visit(ticketId, 0);
-        }
-      });
-      
-      return result;
-    }
-
     const childrenMap = new Map<string | null, string[]>();
     projectTickets.forEach(t => {
         const children = childrenMap.get(t.parentId) || [];
@@ -199,7 +97,7 @@ const App: React.FC = () => {
         visit(ticketId, 0);
     }
     return result;
-  }, [projectTickets, expanded, selectedProjectId, projects, tickets]);
+  }, [projectTickets, expanded]);
 
 
   // CRUD Handlers
@@ -563,15 +461,13 @@ const App: React.FC = () => {
       <header className="flex items-center justify-between p-4 border-b border-gray-700 flex-shrink-0">
         <div className="flex items-center gap-4">
           <h1 className="text-xl font-bold text-white">プロジェクト プランナー</h1>
-          {selectedProjectId !== ALL_PROJECTS_ID && (
-            <button 
-              onClick={() => setModalState({type: 'ADD_TICKET'})} 
-              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-500 transition-colors"
-            >
-              <PlusIcon className="w-5 h-5" />
-              チケットを追加
-            </button>
-          )}
+          <button 
+            onClick={() => setModalState({type: 'ADD_TICKET'})} 
+            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-500 transition-colors"
+          >
+            <PlusIcon className="w-5 h-5" />
+            チケットを追加
+          </button>
         </div>
         <div className="flex items-center gap-4">
             <button
@@ -592,7 +488,6 @@ const App: React.FC = () => {
                         className="bg-gray-800 border border-gray-600 rounded-md py-2 pl-3 pr-8 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
                     >
                         {projects.length === 0 && <option>プロジェクトがありません</option>}
-                        {projects.length > 1 && <option value={ALL_PROJECTS_ID}>全プロジェクト</option>}
                         {projects.map(p => (
                             <option key={p.id} value={p.id}>{p.name}</option>
                         ))}
@@ -615,7 +510,7 @@ const App: React.FC = () => {
               assignees={assignees} 
               expanded={expanded} 
               onToggleExpand={toggleExpand}
-              onTicketReorder={selectedProjectId === ALL_PROJECTS_ID ? undefined : handleTicketReorder}
+              onTicketReorder={handleTicketReorder}
               onEditTicket={(ticket) => setModalState({type: 'EDIT_TICKET', ticket})}
               onDeleteTicket={(ticket) => setModalState({type: 'DELETE_TICKET', ticket})}
             />
