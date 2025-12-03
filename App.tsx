@@ -284,10 +284,10 @@ const App: React.FC = () => {
                     isEdit ? handleEditProject(project!.id, name) : handleAddProject(name);
                 }
             }}>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-2">プロジェクト名</label>
-                <input type="text" id="name" name="name" defaultValue={project?.name || ''} required className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" autoFocus/>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">プロジェクト名</label>
+                <input type="text" id="name" name="name" defaultValue={project?.name || ''} required className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" autoFocus/>
                 <div className="mt-6 flex justify-end gap-3">
-                    <button type="button" onClick={() => setModalState({ type: 'NONE' })} className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-600 rounded-md hover:bg-gray-500 transition-colors">キャンセル</button>
+                    <button type="button" onClick={() => setModalState({ type: 'NONE' })} className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">キャンセル</button>
                     <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-500 transition-colors">保存</button>
                 </div>
             </form>
@@ -299,9 +299,9 @@ const App: React.FC = () => {
         return (
             <div>
                 <p>本当にプロジェクト「{project.name}」を削除しますか？</p>
-                <p className="text-sm text-red-400 mt-2">この操作は元に戻せません。関連するすべてのチケットも削除されます。</p>
+                <p className="text-sm text-red-500 dark:text-red-400 mt-2">この操作は元に戻せません。関連するすべてのチケットも削除されます。</p>
                 <div className="mt-6 flex justify-end gap-3">
-                    <button type="button" onClick={() => setModalState({ type: 'NONE' })} className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-600 rounded-md hover:bg-gray-500 transition-colors">キャンセル</button>
+                    <button type="button" onClick={() => setModalState({ type: 'NONE' })} className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">キャンセル</button>
                     <button type="button" onClick={() => handleDeleteProject(project.id)} className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-500 transition-colors">削除</button>
                 </div>
             </div>
@@ -323,7 +323,7 @@ const App: React.FC = () => {
                 const endDate = new Date((form.elements.namedItem('endDate') as HTMLInputElement).value);
                 const assigneeId = (form.elements.namedItem('assigneeId') as HTMLSelectElement).value || null;
                 const parentId = (form.elements.namedItem('parentId') as HTMLSelectElement).value || null;
-                
+
                 if (name && startDate <= endDate) {
                     const ticketData = { name, startDate, endDate, assigneeId, parentId };
                     isEdit ? handleEditTicket({ ...ticket!, ...ticketData }) : handleAddTicket(ticketData);
@@ -333,36 +333,36 @@ const App: React.FC = () => {
             }}>
                 <div className="space-y-4">
                     <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1">タスク名</label>
-                        <input type="text" name="name" defaultValue={ticket?.name || ''} required className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        <label htmlFor="name" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">タスク名</label>
+                        <input type="text" name="name" defaultValue={ticket?.name || ''} required className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
                     </div>
                      <div className="grid grid-cols-2 gap-4">
                         <div>
-                             <label htmlFor="startDate" className="block text-sm font-medium text-gray-300 mb-1">開始日</label>
-                             <input type="date" name="startDate" defaultValue={ticket ? formatDateForInput(ticket.startDate) : ''} required className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                             <label htmlFor="startDate" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">開始日</label>
+                             <input type="date" name="startDate" defaultValue={ticket ? formatDateForInput(ticket.startDate) : ''} required className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
                         </div>
                         <div>
-                             <label htmlFor="endDate" className="block text-sm font-medium text-gray-300 mb-1">終了日</label>
-                             <input type="date" name="endDate" defaultValue={ticket ? formatDateForInput(ticket.endDate) : ''} required className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                             <label htmlFor="endDate" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">終了日</label>
+                             <input type="date" name="endDate" defaultValue={ticket ? formatDateForInput(ticket.endDate) : ''} required className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
                         </div>
                      </div>
                      <div>
-                        <label htmlFor="assigneeId" className="block text-sm font-medium text-gray-300 mb-1">担当者</label>
-                        <select name="assigneeId" defaultValue={ticket?.assigneeId || ''} className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <label htmlFor="assigneeId" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">担当者</label>
+                        <select name="assigneeId" defaultValue={ticket?.assigneeId || ''} className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                              <option value="">未割り当て</option>
                              {assignees.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                         </select>
                      </div>
                      <div>
-                        <label htmlFor="parentId" className="block text-sm font-medium text-gray-300 mb-1">親チケット</label>
-                        <select name="parentId" defaultValue={ticket?.parentId || ''} className="w-full bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <label htmlFor="parentId" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">親チケット</label>
+                        <select name="parentId" defaultValue={ticket?.parentId || ''} className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                              <option value="">なし (ルートチケット)</option>
                              {projectTickets.filter(t => t.id !== ticket?.id).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                         </select>
                      </div>
                 </div>
                  <div className="mt-6 flex justify-end gap-3">
-                    <button type="button" onClick={() => setModalState({ type: 'NONE' })} className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-600 rounded-md hover:bg-gray-500 transition-colors">キャンセル</button>
+                    <button type="button" onClick={() => setModalState({ type: 'NONE' })} className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">キャンセル</button>
                     <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-500 transition-colors">保存</button>
                 </div>
             </form>
@@ -374,9 +374,9 @@ const App: React.FC = () => {
         return (
             <div>
                 <p>本当にチケット「{ticket.name}」を削除しますか？</p>
-                <p className="text-sm text-red-400 mt-2">この操作は元に戻せません。このチケットの子チケットもすべて削除されます。</p>
+                <p className="text-sm text-red-500 dark:text-red-400 mt-2">この操作は元に戻せません。このチケットの子チケットもすべて削除されます。</p>
                 <div className="mt-6 flex justify-end gap-3">
-                    <button type="button" onClick={() => setModalState({ type: 'NONE' })} className="px-4 py-2 text-sm font-medium text-gray-300 bg-gray-600 rounded-md hover:bg-gray-500 transition-colors">キャンセル</button>
+                    <button type="button" onClick={() => setModalState({ type: 'NONE' })} className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">キャンセル</button>
                     <button type="button" onClick={() => handleDeleteTicket(ticket.id)} className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-500 transition-colors">削除</button>
                 </div>
             </div>
@@ -388,13 +388,13 @@ const App: React.FC = () => {
         <div>
           <div className="space-y-2 max-h-60 overflow-y-auto pr-2 mb-4">
             {assignees.map(assignee => (
-              <div key={assignee.id} className="flex items-center justify-between gap-2 bg-gray-700/50 p-2 rounded-md">
+              <div key={assignee.id} className="flex items-center justify-between gap-2 bg-gray-200/50 dark:bg-gray-700/50 p-2 rounded-md">
                 {editingAssignee?.id === assignee.id ? (
                   <input
                     type="text"
                     value={editingAssignee.name}
                     onChange={(e) => setEditingAssignee({ ...editingAssignee, name: e.target.value })}
-                    className="flex-grow bg-gray-600 border border-gray-500 rounded-md px-2 py-1 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    className="flex-grow bg-gray-100 dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-md px-2 py-1 text-gray-900 dark:text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                     autoFocus
                     onKeyDown={(e) => e.key === 'Enter' && handleUpdateAssignee(editingAssignee.id, editingAssignee.name)}
                     onBlur={() => setEditingAssignee(null)}
@@ -404,31 +404,31 @@ const App: React.FC = () => {
                 )}
                 <div className="flex items-center gap-1 flex-shrink-0">
                   {editingAssignee?.id === assignee.id ? (
-                    <button 
+                    <button
                       onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => handleUpdateAssignee(editingAssignee.id, editingAssignee.name)} 
-                      className="p-1 text-green-400 hover:text-green-300" title="保存">
+                      onClick={() => handleUpdateAssignee(editingAssignee.id, editingAssignee.name)}
+                      className="p-1 text-green-500 dark:text-green-400 hover:text-green-600 dark:hover:text-green-300" title="保存">
                         <CheckIcon className="w-5 h-5"/>
                     </button>
                   ) : (
-                    <button onClick={() => setEditingAssignee({id: assignee.id, name: assignee.name})} className="p-1 text-gray-400 hover:text-white" title="編集"><PencilIcon className="w-4 h-4" /></button>
+                    <button onClick={() => setEditingAssignee({id: assignee.id, name: assignee.name})} className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" title="編集"><PencilIcon className="w-4 h-4" /></button>
                   )}
                   <button onClick={() => {
                     if (window.confirm(`担当者「${assignee.name}」を削除しますか？\n関連するチケットは「未割り当て」になります。`)) {
                       handleDeleteAssignee(assignee.id);
                     }
-                  }} className="p-1 text-gray-400 hover:text-red-500" title="削除"><TrashIcon className="w-4 h-4" /></button>
+                  }} className="p-1 text-gray-500 dark:text-gray-400 hover:text-red-500" title="削除"><TrashIcon className="w-4 h-4" /></button>
                 </div>
               </div>
             ))}
           </div>
-          <form className="mt-4 pt-4 border-t border-gray-700 flex gap-2" onSubmit={(e) => { e.preventDefault(); handleAddAssignee(newAssigneeName); }}>
+          <form className="mt-4 pt-4 border-t border-gray-300 dark:border-gray-700 flex gap-2" onSubmit={(e) => { e.preventDefault(); handleAddAssignee(newAssigneeName); }}>
             <input
               type="text"
               placeholder="新しい担当者名"
               value={newAssigneeName}
               onChange={e => setNewAssigneeName(e.target.value)}
-              className="flex-grow bg-gray-700 border border-gray-600 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-grow bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-500 transition-colors">追加</button>
           </form>
@@ -461,10 +461,10 @@ const App: React.FC = () => {
     >
         {renderModalContent()}
     </Modal>
-    <div className="flex flex-col h-screen bg-gray-900 text-gray-100 font-sans">
-      <header className="flex items-center justify-between p-4 border-b border-gray-700 flex-shrink-0">
+    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans transition-colors duration-200">
+      <header className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0 bg-white dark:bg-gray-900">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl font-bold text-white">プロジェクト プランナー</h1>
+          <h1 className="text-xl font-bold text-gray-900 dark:text-white">プロジェクト プランナー</h1>
           {activeMenuItem === 'timeline' && selectedProjectId !== ALL_PROJECTS_ID && (
             <button
               onClick={() => setModalState({type: 'ADD_TICKET'})}
@@ -479,20 +479,20 @@ const App: React.FC = () => {
           <div className="flex items-center gap-4">
               <button
                   onClick={() => setModalState({ type: 'MANAGE_ASSIGNEES' })}
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-200 bg-gray-700 rounded-md hover:bg-gray-600 transition-colors"
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                   title="担当者を管理"
               >
                   <UserGroupIcon className="w-5 h-5" />
                   <span>担当者管理</span>
               </button>
-              <div className="w-px h-6 bg-gray-600" />
-              <span className="text-sm text-gray-400">プロジェクト:</span>
+              <div className="w-px h-6 bg-gray-300 dark:bg-gray-600" />
+              <span className="text-sm text-gray-500 dark:text-gray-400">プロジェクト:</span>
                <div className="flex items-center gap-2">
                   <div className="relative">
                       <select
                           value={selectedProjectId}
                           onChange={(e) => setSelectedProjectId(e.target.value)}
-                          className="bg-gray-800 border border-gray-600 rounded-md py-2 pl-3 pr-8 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+                          className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md py-2 pl-3 pr-8 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
                       >
                           {projects.length === 0 && <option>プロジェクトがありません</option>}
                           {projects.length > 1 && <option value={ALL_PROJECTS_ID}>全プロジェクト</option>}
@@ -502,10 +502,10 @@ const App: React.FC = () => {
                       </select>
                       <FolderIcon className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                   </div>
-                  <button onClick={() => setModalState({type: 'ADD_PROJECT'})} className="p-2 bg-gray-700 rounded-md hover:bg-gray-600" title="プロジェクトを追加"><PlusIcon className="w-5 h-5"/></button>
+                  <button onClick={() => setModalState({type: 'ADD_PROJECT'})} className="p-2 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600" title="プロジェクトを追加"><PlusIcon className="w-5 h-5"/></button>
                   {currentProject && <>
-                      <button onClick={() => setModalState({type: 'EDIT_PROJECT', project: currentProject})} className="p-2 bg-gray-700 rounded-md hover:bg-gray-600" title="プロジェクトを編集"><PencilIcon className="w-5 h-5"/></button>
-                      <button onClick={() => setModalState({type: 'DELETE_PROJECT', project: currentProject})} className="p-2 bg-gray-700 rounded-md hover:bg-red-500" title="プロジェクトを削除"><TrashIcon className="w-5 h-5"/></button>
+                      <button onClick={() => setModalState({type: 'EDIT_PROJECT', project: currentProject})} className="p-2 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600" title="プロジェクトを編集"><PencilIcon className="w-5 h-5"/></button>
+                      <button onClick={() => setModalState({type: 'DELETE_PROJECT', project: currentProject})} className="p-2 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-red-500" title="プロジェクトを削除"><TrashIcon className="w-5 h-5"/></button>
                   </>}
                </div>
           </div>
@@ -531,7 +531,7 @@ const App: React.FC = () => {
               </div>
 
               <div
-                className="w-1.5 cursor-col-resize bg-gray-700 hover:bg-blue-500 transition-colors duration-200 rounded-full"
+                className="w-1.5 cursor-col-resize bg-gray-300 dark:bg-gray-700 hover:bg-blue-500 transition-colors duration-200 rounded-full"
                 onMouseDown={handleMouseDown}
               />
 
@@ -543,7 +543,7 @@ const App: React.FC = () => {
 
           {(activeMenuItem === 'home' || activeMenuItem === 'projects' || activeMenuItem === 'reports') && (
             <div className="flex-grow flex items-center justify-center">
-              <div className="text-center text-gray-400">
+              <div className="text-center text-gray-500 dark:text-gray-400">
                 <p className="text-lg font-medium">
                   {activeMenuItem === 'home' && 'ホーム'}
                   {activeMenuItem === 'projects' && 'プロジェクト'}

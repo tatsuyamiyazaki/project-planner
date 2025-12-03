@@ -138,10 +138,10 @@ const GanttChart: React.FC<GanttChartProps> = ({ tickets, onTicketUpdate }) => {
     }
 
     return (
-      <div className="sticky top-0 z-20 bg-gray-800">
+      <div className="sticky top-0 z-20 bg-gray-100 dark:bg-gray-800 transition-colors duration-200">
         <div className="flex" style={{ width: totalDays * dayWidth }}>
           {months.map((month, index) => (
-            <div key={index} className="flex-shrink-0 text-center border-r border-b border-gray-700 h-8 flex items-center justify-center" style={{ width: month.days * dayWidth }}>
+            <div key={index} className="flex-shrink-0 text-center border-r border-b border-gray-200 dark:border-gray-700 h-8 flex items-center justify-center" style={{ width: month.days * dayWidth }}>
               <span className="text-sm font-semibold">{month.year}年 {month.name}</span>
             </div>
           ))}
@@ -151,7 +151,7 @@ const GanttChart: React.FC<GanttChartProps> = ({ tickets, onTicketUpdate }) => {
             const date = addDays(projectStartDate, i);
             const isWeekend = date.getDay() === 0 || date.getDay() === 6;
             return (
-              <div key={i} className={`flex-shrink-0 w-[${dayWidth}px] text-center border-r border-gray-700 ${isWeekend ? 'bg-gray-700/50' : ''}`} style={{ width: dayWidth}}>
+              <div key={i} className={`flex-shrink-0 w-[${dayWidth}px] text-center border-r border-gray-200 dark:border-gray-700 ${isWeekend ? 'bg-gray-200/50 dark:bg-gray-700/50' : ''}`} style={{ width: dayWidth}}>
                 <span className="text-xs">{date.getDate()}</span>
               </div>
             );
@@ -198,15 +198,15 @@ const GanttChart: React.FC<GanttChartProps> = ({ tickets, onTicketUpdate }) => {
   };
 
   return (
-    <div ref={chartRef} className="bg-gray-800/50 rounded-lg">
+    <div ref={chartRef} className="bg-gray-100/50 dark:bg-gray-800/50 rounded-lg transition-colors duration-200">
       {renderTimelineHeader()}
       <div className="relative" style={{ height: tickets.length * 50, width: totalDays * dayWidth }}>
         {/* Grid lines */}
         {[...Array(totalDays)].map((_, i) => (
-             <div key={`v-${i}`} className="absolute top-0 bottom-0 border-r border-gray-700/50" style={{ left: (i + 1) * dayWidth, width: 1}} />
+             <div key={`v-${i}`} className="absolute top-0 bottom-0 border-r border-gray-200/50 dark:border-gray-700/50" style={{ left: (i + 1) * dayWidth, width: 1}} />
         ))}
         {tickets.map((ticket, index) => (
-          <div key={`h-${ticket.id}`} className="absolute left-0 right-0 border-b border-gray-700/50" style={{ top: (index + 1) * 50, height: 1 }} />
+          <div key={`h-${ticket.id}`} className="absolute left-0 right-0 border-b border-gray-200/50 dark:border-gray-700/50" style={{ top: (index + 1) * 50, height: 1 }} />
         ))}
 
         {/* Ticket Bars */}
