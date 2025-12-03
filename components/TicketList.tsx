@@ -58,8 +58,8 @@ const TicketList: React.FC<TicketListProps> = ({ tickets, assignees, expanded, o
   };
 
   return (
-    <div className="bg-gray-800/50 rounded-lg">
-       <div className="sticky top-0 bg-gray-800 px-2 text-xs font-bold text-gray-500 border-b border-gray-700 flex items-center justify-between z-10 h-[52px] box-border">
+    <div className="bg-gray-100/50 dark:bg-gray-800/50 rounded-lg transition-colors duration-200">
+       <div className="sticky top-0 bg-gray-100 dark:bg-gray-800 px-2 text-xs font-bold text-gray-500 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between z-10 h-[52px] box-border">
           <div className="flex-grow">タスク名</div>
           <div className="flex items-center">
             <div className="flex-shrink-0 w-24 text-center">担当者</div>
@@ -82,35 +82,35 @@ const TicketList: React.FC<TicketListProps> = ({ tickets, assignees, expanded, o
               onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, ticket.id)}
               onDragEnd={handleDragEnd}
-              className={`group relative flex items-center h-[50px] border-b border-gray-700/50 box-border transition-opacity ${isDragged ? 'opacity-30' : 'opacity-100'} ${isDragOver ? 'border-t-2 border-blue-500 -mt-0.5' : ''}`}
+              className={`group relative flex items-center h-[50px] border-b border-gray-200/50 dark:border-gray-700/50 box-border transition-opacity ${isDragged ? 'opacity-30' : 'opacity-100'} ${isDragOver ? 'border-t-2 border-blue-500 -mt-0.5' : ''}`}
               style={{ paddingLeft: `${ticket.level * 20 + 8}px` }}
             >
               <div className="flex items-center gap-2 flex-grow min-w-0">
                 {ticket.hasChildren ? (
-                  <button onClick={() => onToggleExpand(ticket.id)} className="p-0.5 rounded-full hover:bg-gray-600">
+                  <button onClick={() => onToggleExpand(ticket.id)} className="p-0.5 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">
                     <ChevronDownIcon className={`w-4 h-4 transition-transform duration-200 ${expanded.has(ticket.id) ? 'rotate-0' : '-rotate-90'}`} />
                   </button>
                 ) : (
                   <div className="w-5 h-5"></div>
                 )}
-                
-                <div className="text-blue-400">
+
+                <div className="text-blue-500 dark:text-blue-400">
                    {ticket.hasChildren ? <FolderIcon /> : <DocumentIcon />}
                 </div>
 
                 <span className="truncate text-sm font-medium">{ticket.name}</span>
               </div>
-              <div className="flex-shrink-0 w-24 text-center text-xs text-gray-300">
+              <div className="flex-shrink-0 w-24 text-center text-xs text-gray-600 dark:text-gray-300">
                 {assignee ? assignee.name : '未割り当て'}
               </div>
-              <div className="flex items-center text-xs text-gray-400 gap-2 ml-4 flex-shrink-0 w-48 justify-end">
+              <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 gap-2 ml-4 flex-shrink-0 w-48 justify-end">
                 <span>{formatDate(ticket.startDate)}</span>
                 <span>&rarr;</span>
                 <span>{formatDate(ticket.endDate)}</span>
               </div>
               <div className="w-12 flex-shrink-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                 <button onClick={() => onEditTicket(ticket)} className="p-1 text-gray-400 hover:text-white"><PencilIcon className="w-4 h-4" /></button>
-                 <button onClick={() => onDeleteTicket(ticket)} className="p-1 text-gray-400 hover:text-red-500"><TrashIcon className="w-4 h-4" /></button>
+                 <button onClick={() => onEditTicket(ticket)} className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"><PencilIcon className="w-4 h-4" /></button>
+                 <button onClick={() => onDeleteTicket(ticket)} className="p-1 text-gray-500 dark:text-gray-400 hover:text-red-500"><TrashIcon className="w-4 h-4" /></button>
               </div>
             </div>
            );
