@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+.kamui/apps/*
+.kamui/system-graph-state.json
+.kamui/gantte/test.yaml
+.kamui/model-versions-cache.json
