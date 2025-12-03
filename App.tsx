@@ -5,6 +5,7 @@ import TicketList, { TicketWithLevel } from './components/TicketList';
 import GanttChart from './components/GanttChart';
 import { FolderIcon, PlusIcon, PencilIcon, TrashIcon, UserGroupIcon, CheckIcon } from './components/Icons';
 import Modal from './components/Modal';
+import Sidebar, { MenuItemId } from './components/Sidebar';
 
 type ModalState =
   | { type: 'NONE' }
@@ -55,6 +56,7 @@ const App: React.FC = () => {
   const [selectedProjectId, setSelectedProjectId] = useState<string>(initialData.selectedProjectId);
   
   const [modalState, setModalState] = useState<ModalState>({ type: 'NONE' });
+  const [activeMenuItem, setActiveMenuItem] = useState<MenuItemId>('projects');
 
   // State for assignee management modal
   const [editingAssignee, setEditingAssignee] = useState<{id: string, name: string} | null>(null);
@@ -563,9 +565,9 @@ const App: React.FC = () => {
       <header className="flex items-center justify-between p-4 border-b border-gray-700 flex-shrink-0">
         <div className="flex items-center gap-4">
           <h1 className="text-xl font-bold text-white">プロジェクト プランナー</h1>
-          {selectedProjectId !== ALL_PROJECTS_ID && (
-            <button 
-              onClick={() => setModalState({type: 'ADD_TICKET'})} 
+          {activeMenuItem === 'projects' && selectedProjectId !== ALL_PROJECTS_ID && (
+            <button
+              onClick={() => setModalState({type: 'ADD_TICKET'})}
               className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-500 transition-colors"
             >
               <PlusIcon className="w-5 h-5" />
@@ -573,63 +575,84 @@ const App: React.FC = () => {
             </button>
           )}
         </div>
-        <div className="flex items-center gap-4">
-            <button
-                onClick={() => setModalState({ type: 'MANAGE_ASSIGNEES' })}
-                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-200 bg-gray-700 rounded-md hover:bg-gray-600 transition-colors"
-                title="担当者を管理"
-            >
-                <UserGroupIcon className="w-5 h-5" />
-                <span>担当者管理</span>
-            </button>
-            <div className="w-px h-6 bg-gray-600" />
-            <span className="text-sm text-gray-400">プロジェクト:</span>
-             <div className="flex items-center gap-2">
-                <div className="relative">
-                    <select
-                        value={selectedProjectId}
-                        onChange={(e) => setSelectedProjectId(e.target.value)}
-                        className="bg-gray-800 border border-gray-600 rounded-md py-2 pl-3 pr-8 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-                    >
-                        {projects.length === 0 && <option>プロジェクトがありません</option>}
-                        {projects.length > 1 && <option value={ALL_PROJECTS_ID}>全プロジェクト</option>}
-                        {projects.map(p => (
-                            <option key={p.id} value={p.id}>{p.name}</option>
-                        ))}
-                    </select>
-                    <FolderIcon className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                </div>
-                <button onClick={() => setModalState({type: 'ADD_PROJECT'})} className="p-2 bg-gray-700 rounded-md hover:bg-gray-600" title="プロジェクトを追加"><PlusIcon className="w-5 h-5"/></button>
-                {currentProject && <>
-                    <button onClick={() => setModalState({type: 'EDIT_PROJECT', project: currentProject})} className="p-2 bg-gray-700 rounded-md hover:bg-gray-600" title="プロジェクトを編集"><PencilIcon className="w-5 h-5"/></button>
-                    <button onClick={() => setModalState({type: 'DELETE_PROJECT', project: currentProject})} className="p-2 bg-gray-700 rounded-md hover:bg-red-500" title="プロジェクトを削除"><TrashIcon className="w-5 h-5"/></button>
-                </>}
-             </div>
-        </div>
+        {activeMenuItem === 'projects' && (
+          <div className="flex items-center gap-4">
+              <button
+                  onClick={() => setModalState({ type: 'MANAGE_ASSIGNEES' })}
+                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-200 bg-gray-700 rounded-md hover:bg-gray-600 transition-colors"
+                  title="担当者を管理"
+              >
+                  <UserGroupIcon className="w-5 h-5" />
+                  <span>担当者管理</span>
+              </button>
+              <div className="w-px h-6 bg-gray-600" />
+              <span className="text-sm text-gray-400">プロジェクト:</span>
+               <div className="flex items-center gap-2">
+                  <div className="relative">
+                      <select
+                          value={selectedProjectId}
+                          onChange={(e) => setSelectedProjectId(e.target.value)}
+                          className="bg-gray-800 border border-gray-600 rounded-md py-2 pl-3 pr-8 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+                      >
+                          {projects.length === 0 && <option>プロジェクトがありません</option>}
+                          {projects.length > 1 && <option value={ALL_PROJECTS_ID}>全プロジェクト</option>}
+                          {projects.map(p => (
+                              <option key={p.id} value={p.id}>{p.name}</option>
+                          ))}
+                      </select>
+                      <FolderIcon className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                  </div>
+                  <button onClick={() => setModalState({type: 'ADD_PROJECT'})} className="p-2 bg-gray-700 rounded-md hover:bg-gray-600" title="プロジェクトを追加"><PlusIcon className="w-5 h-5"/></button>
+                  {currentProject && <>
+                      <button onClick={() => setModalState({type: 'EDIT_PROJECT', project: currentProject})} className="p-2 bg-gray-700 rounded-md hover:bg-gray-600" title="プロジェクトを編集"><PencilIcon className="w-5 h-5"/></button>
+                      <button onClick={() => setModalState({type: 'DELETE_PROJECT', project: currentProject})} className="p-2 bg-gray-700 rounded-md hover:bg-red-500" title="プロジェクトを削除"><TrashIcon className="w-5 h-5"/></button>
+                  </>}
+               </div>
+          </div>
+        )}
       </header>
-      
-      <main className="flex-grow flex p-4 gap-4 min-h-0">
-        <div ref={leftPanelRef} onScroll={() => handleScroll('left')} style={{ width: `${sidebarWidth}px` }} className="flex-shrink-0 h-full overflow-y-auto overflow-x-hidden">
-            <TicketList 
-              tickets={visibleTickets} 
-              assignees={assignees} 
-              expanded={expanded} 
-              onToggleExpand={toggleExpand}
-              onTicketReorder={selectedProjectId === ALL_PROJECTS_ID ? undefined : handleTicketReorder}
-              onEditTicket={(ticket) => setModalState({type: 'EDIT_TICKET', ticket})}
-              onDeleteTicket={(ticket) => setModalState({type: 'DELETE_TICKET', ticket})}
-            />
-        </div>
 
-        <div 
-          className="w-1.5 cursor-col-resize bg-gray-700 hover:bg-blue-500 transition-colors duration-200 rounded-full"
-          onMouseDown={handleMouseDown}
-        />
+      <div className="flex flex-grow min-h-0">
+        <Sidebar activeItem={activeMenuItem} onItemClick={setActiveMenuItem} />
 
-        <div ref={rightPanelRef} onScroll={() => handleScroll('right')} className="flex-grow h-full min-w-0 overflow-auto">
-            <GanttChart tickets={visibleTickets} onTicketUpdate={handleTicketUpdate} />
-        </div>
-      </main>
+        <main className="flex-grow flex p-4 gap-4 min-h-0">
+          {activeMenuItem === 'projects' ? (
+            <>
+              <div ref={leftPanelRef} onScroll={() => handleScroll('left')} style={{ width: `${sidebarWidth}px` }} className="flex-shrink-0 h-full overflow-y-auto overflow-x-hidden">
+                  <TicketList
+                    tickets={visibleTickets}
+                    assignees={assignees}
+                    expanded={expanded}
+                    onToggleExpand={toggleExpand}
+                    onTicketReorder={selectedProjectId === ALL_PROJECTS_ID ? undefined : handleTicketReorder}
+                    onEditTicket={(ticket) => setModalState({type: 'EDIT_TICKET', ticket})}
+                    onDeleteTicket={(ticket) => setModalState({type: 'DELETE_TICKET', ticket})}
+                  />
+              </div>
+
+              <div
+                className="w-1.5 cursor-col-resize bg-gray-700 hover:bg-blue-500 transition-colors duration-200 rounded-full"
+                onMouseDown={handleMouseDown}
+              />
+
+              <div ref={rightPanelRef} onScroll={() => handleScroll('right')} className="flex-grow h-full min-w-0 overflow-auto">
+                  <GanttChart tickets={visibleTickets} onTicketUpdate={handleTicketUpdate} />
+              </div>
+            </>
+          ) : (
+            <div className="flex-grow flex items-center justify-center">
+              <div className="text-center text-gray-400">
+                <p className="text-lg font-medium">
+                  {activeMenuItem === 'home' && 'ホーム'}
+                  {activeMenuItem === 'timeline' && 'タイムライン'}
+                  {activeMenuItem === 'reports' && 'レポート'}
+                </p>
+                <p className="text-sm mt-2">このページは準備中です</p>
+              </div>
+            </div>
+          )}
+        </main>
+      </div>
     </div>
     </>
   );
