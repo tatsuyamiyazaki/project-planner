@@ -7,6 +7,8 @@ import { FolderIcon, PlusIcon, PencilIcon, TrashIcon, UserGroupIcon, CheckIcon }
 import Modal from './components/Modal';
 import Sidebar, { MenuItemId } from './components/Sidebar';
 
+const ALL_PROJECTS_ID = '__ALL_PROJECTS__';
+
 type ModalState =
   | { type: 'NONE' }
   | { type: 'ADD_PROJECT' }
@@ -463,7 +465,7 @@ const App: React.FC = () => {
       <header className="flex items-center justify-between p-4 border-b border-gray-700 flex-shrink-0">
         <div className="flex items-center gap-4">
           <h1 className="text-xl font-bold text-white">プロジェクト プランナー</h1>
-          {activeMenuItem === 'projects' && selectedProjectId !== ALL_PROJECTS_ID && (
+          {activeMenuItem === 'timeline' && selectedProjectId !== ALL_PROJECTS_ID && (
             <button
               onClick={() => setModalState({type: 'ADD_TICKET'})}
               className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-500 transition-colors"
@@ -473,7 +475,7 @@ const App: React.FC = () => {
             </button>
           )}
         </div>
-        {activeMenuItem === 'projects' && (
+        {activeMenuItem === 'timeline' && (
           <div className="flex items-center gap-4">
               <button
                   onClick={() => setModalState({ type: 'MANAGE_ASSIGNEES' })}
@@ -514,18 +516,18 @@ const App: React.FC = () => {
         <Sidebar activeItem={activeMenuItem} onItemClick={setActiveMenuItem} />
 
         <main className="flex-grow flex p-4 gap-4 min-h-0">
-          {activeMenuItem === 'projects' ? (
+          {activeMenuItem === 'timeline' && (
             <>
               <div ref={leftPanelRef} onScroll={() => handleScroll('left')} style={{ width: `${sidebarWidth}px` }} className="flex-shrink-0 h-full overflow-y-auto overflow-x-hidden">
-                  <TicketList
-                    tickets={visibleTickets}
-                    assignees={assignees}
-                    expanded={expanded}
-                    onToggleExpand={toggleExpand}
-                    onTicketReorder={selectedProjectId === ALL_PROJECTS_ID ? undefined : handleTicketReorder}
-                    onEditTicket={(ticket) => setModalState({type: 'EDIT_TICKET', ticket})}
-                    onDeleteTicket={(ticket) => setModalState({type: 'DELETE_TICKET', ticket})}
-                  />
+                <TicketList
+                  tickets={visibleTickets}
+                  assignees={assignees}
+                  expanded={expanded}
+                  onToggleExpand={toggleExpand}
+                  onTicketReorder={selectedProjectId === ALL_PROJECTS_ID ? undefined : handleTicketReorder}
+                  onEditTicket={(ticket) => setModalState({type: 'EDIT_TICKET', ticket})}
+                  onDeleteTicket={(ticket) => setModalState({type: 'DELETE_TICKET', ticket})}
+                />
               </div>
 
               <div
@@ -534,15 +536,17 @@ const App: React.FC = () => {
               />
 
               <div ref={rightPanelRef} onScroll={() => handleScroll('right')} className="flex-grow h-full min-w-0 overflow-auto">
-                  <GanttChart tickets={visibleTickets} onTicketUpdate={handleTicketUpdate} />
+                <GanttChart tickets={visibleTickets} onTicketUpdate={handleTicketUpdate} />
               </div>
             </>
-          ) : (
+          )}
+
+          {(activeMenuItem === 'home' || activeMenuItem === 'projects' || activeMenuItem === 'reports') && (
             <div className="flex-grow flex items-center justify-center">
               <div className="text-center text-gray-400">
                 <p className="text-lg font-medium">
                   {activeMenuItem === 'home' && 'ホーム'}
-                  {activeMenuItem === 'timeline' && 'タイムライン'}
+                  {activeMenuItem === 'projects' && 'プロジェクト'}
                   {activeMenuItem === 'reports' && 'レポート'}
                 </p>
                 <p className="text-sm mt-2">このページは準備中です</p>
