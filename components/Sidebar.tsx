@@ -28,6 +28,9 @@ const Sidebar: React.FC<SidebarProps> = ({ activeItem, onItemClick, extraContent
 
   return (
     <aside className="w-56 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col flex-shrink-0 transition-colors duration-200">
+      <div className="px-4 py-4 border-b border-gray-200 dark:border-gray-700">
+        <h1 className="text-lg font-bold text-gray-900 dark:text-white">Project Planner</h1>
+      </div>
       <nav className="flex-1 py-4 overflow-y-auto">
         <ul className="space-y-1 px-3">
           {menuItems.map((item) => {
