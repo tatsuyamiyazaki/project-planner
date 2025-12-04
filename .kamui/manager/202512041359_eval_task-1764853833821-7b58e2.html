@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>評価レポート</title>
+    <style>
+      body {
+        font-family: "Hiragino Sans", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+        line-height: 1.6;
+        margin: 24px;
+        background-color: #e9f0f2;
+        color: #1f2a30;
+      }
+      .monitor-wrapper {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 32px;
+        background: #ffffff;
+        border: 1px solid #c4d3d7;
+      }
+      .monitor-header {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 24px;
+      }
+      .monitor-title {
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: #1f2a30;
+      }
+      .monitor-description {
+        font-size: 14px;
+        color: #3a4b53;
+      }
+      .score-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 12px;
+        margin-bottom: 20px;
+      }
+      .score-card {
+        background: #f4f8f9;
+        border: 1px solid #d3dfe3;
+        border-radius: 12px;
+        padding: 14px 16px;
+      }
+      .score-card h3 {
+        margin: 0 0 4px;
+        font-size: 15px;
+        font-weight: 700;
+      }
+      .score-card .score {
+        font-size: 20px;
+        font-weight: 700;
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+      }
+      .score-card .note {
+        font-size: 12px;
+        color: #4b5b63;
+      }
+      table.monitor-report {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        background: #ffffff;
+        border: 1px solid #c4d3d7;
+      }
+      col.timestamp-column {
+        width: 180px;
+      }
+      col.agent-column {
+        width: calc((100% - 180px) / 3);
+      }
+      th,
+      td {
+        border: 1px solid #c4d3d7;
+        padding: 16px;
+        vertical-align: top;
+        background-color: #ffffff;
+      }
+      th {
+        background: #d8e6e9;
+        text-align: left;
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: #2c3a40;
+      }
+      tbody tr:nth-child(even) td {
+        background-color: #eef3f4;
+      }
+      details {
+        display: block;
+        margin: 0;
+      }
+      details summary {
+        list-style: none;
+      }
+      details[open] summary {
+        margin-bottom: 12px;
+      }
+      .details-toggle {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 13px;
+        color: #1f2a30;
+        padding: 0;
+        background: transparent;
+        border: none;
+      }
+      .details-toggle::before {
+        content: "▶";
+        font-size: 10px;
+        transition: transform 160ms ease;
+        display: inline-block;
+      }
+      details[open] .details-toggle::before {
+        transform: rotate(90deg);
+      }
+      .timestamp {
+        font-weight: 600;
+        color: #2c3a40;
+        overflow-wrap: anywhere;
+      }
+      .snapshot-summary {
+        margin-bottom: 12px;
+        font-weight: 500;
+        color: #2c3a40;
+      }
+      pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+        margin: 0;
+        font-size: 12px;
+        line-height: 1.55;
+        color: #1f2a30;
+        background: #f2f6f7;
+        border: 1px solid #c4d3d7;
+        padding: 16px;
+      }
+      .status-badge {
+        display: inline-block;
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        padding: 1px 6px;
+        background: #d8e6e9;
+        border: 1px solid #b8c9cd;
+        color: #1f2a30;
+        white-space: nowrap;
+        line-height: 1.3;
+        vertical-align: top;
+      }
+      .status-badge--completed {
+        background: #c3d4d8;
+        border-color: #aabfc5;
+      }
+      .status-badge--error {
+        background: #f8d7da;
+        border-color: #f1aeb5;
+      }
+      .status-badge--pending {
+        background: #e3edf0;
+        border-color: #cdd9dd;
+      }
+      .agent-meta {
+        display: block;
+        margin-bottom: 8px;
+        line-height: 1.5;
+      }
+      .agent-meta .status-badge {
+        margin-right: 6px;
+      }
+      .agent-meta .agent-label {
+        display: inline;
+        font-size: 13px;
+        color: #3a4b53;
+      }
+      .radar-wrapper {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+      }
+      .radar-svg {
+        width: 140px;
+        height: 140px;
+      }
+      .radar-bg {
+        fill: #eef3f4;
+        stroke: #c4d3d7;
+      }
+      .radar-path {
+        fill: rgba(52, 124, 255, 0.2);
+        stroke: #347cff;
+        stroke-width: 2;
+      }
+      .metric-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        font-size: 12px;
+        color: #2c3a40;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+        gap: 4px 12px;
+      }
+      .metric-list li {
+        display: flex;
+        justify-content: space-between;
+      }
+      .issue-list {
+        padding-left: 18px;
+        margin: 8px 0;
+      }
+      .link-note {
+        font-size: 12px;
+        color: #4b5b63;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="monitor-wrapper">
+      <header class="monitor-header">
+        <h1 class="monitor-title">評価レポート</h1>
+        <p class="monitor-description">監視対象: task-1764853833821-7b58e2 / task-1764853834033-310c6e / task-1764853834646-f500d3。サイドバー選択時のステータス別一覧とプロジェクトCRUD・設定画面要件の達成度を確認。</p>
+      </header>
+
+      <div class="score-cards">
+        <div class="score-card">
+          <h3>task-1764853833821-7b58e2</h3>
+          <div class="score">❌ 115 / 600 <span class="note">(総合 19/100, medal: none)</span></div>
+          <div class="note">要件未実装: ステータス別一覧と拡張プロジェクト設定が存在せず。</div>
+        </div>
+        <div class="score-card">
+          <h3>task-1764853834033-310c6e</h3>
+          <div class="score">❌ 115 / 600 <span class="note">(総合 19/100, medal: none)</span></div>
+          <div class="note">要件未実装: 追加フィールドや完了/終了表示が未提供。</div>
+        </div>
+        <div class="score-card">
+          <h3>task-1764853834646-f500d3</h3>
+          <div class="score">❌ 115 / 600 <span class="note">(総合 19/100, medal: none)</span></div>
+          <div class="note">要件未実装: コミット差分なしで要件反映が確認できず。</div>
+        </div>
+      </div>
+
+      <table class="monitor-report">
+        <colgroup>
+          <col class="timestamp-column" />
+          <col class="agent-column" />
+          <col class="agent-column" />
+          <col class="agent-column" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Agent task-1764853833821-7b58e2</th>
+            <th>Agent task-1764853834033-310c6e</th>
+            <th>Agent task-1764853834646-f500d3</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="timestamp">2025-12-04 13:59 UTC</td>
+            <td>
+              <div class="agent-meta">
+                <span class="status-badge status-badge--completed">評価完了</span>
+                <span class="agent-label">差分なし(=main)。要件充足ゼロにより失格評価。</span>
+              </div>
+              <div class="radar-wrapper">
+                <svg class="radar-svg" viewBox="0 0 140 140" role="img" aria-label="六角形チャート">
+                  <polygon class="radar-bg" points="70,10 121,40 121,100 70,130 19,100 19,40" />
+                  <polygon class="radar-path" points="" data-scores="[15,45,25,15,10,5]" />
+                </svg>
+                <ul class="metric-list">
+                  <li><span>要件適合度</span><span>15</span></li>
+                  <li><span>実装品質</span><span>45</span></li>
+                  <li><span>UI/UX</span><span>25</span></li>
+                  <li><span>完成度</span><span>15</span></li>
+                  <li><span>テスト健全性</span><span>10</span></li>
+                  <li><span>コミット品質</span><span>5</span></li>
+                </ul>
+              </div>
+              <div class="snapshot-summary">主な指摘</div>
+              <ul class="issue-list">
+                <li>ステータス別リスト未提供: プロジェクト選択時に計画中/進行中/終了別の一覧がなく、タイムライン・ホームいずれも単一ビューのみ (App.tsx:534-639)。</li>
+                <li>プロジェクト設定項目不足: name/statusのみで概要/PM/予定工数/見積/期間/備考を保持する型・UIが存在しない (App.tsx:276-306, types.ts:17-22)。</li>
+                <li>コミットなし: mainと差分ゼロでタスク専用のコミットメッセージが確認できず、要件への取り組みが不明。</li>
+              </ul>
+              <div class="link-note">成果物: /home/t_miyazaki/dev/project-planner/.worktrees/task-1764853833821-7b58e2</div>
+              <details class="snapshot-details">
+                <summary class="details-toggle">git diff / log</summary>
+                <pre>git diff --stat main..task/task-1764853833821-7b58e2 → (差分なし)
+git log --oneline main..task/task-1764853833821-7b58e2 → (追加コミットなし)</pre>
+              </details>
+            </td>
+            <td>
+              <div class="agent-meta">
+                <span class="status-badge status-badge--completed">評価完了</span>
+                <span class="agent-label">差分なし。要件未充足のため低スコア。</span>
+              </div>
+              <div class="radar-wrapper">
+                <svg class="radar-svg" viewBox="0 0 140 140" role="img" aria-label="六角形チャート">
+                  <polygon class="radar-bg" points="70,10 121,40 121,100 70,130 19,100 19,40" />
+                  <polygon class="radar-path" points="" data-scores="[15,45,25,15,10,5]" />
+                </svg>
+                <ul class="metric-list">
+                  <li><span>要件適合度</span><span>15</span></li>
+                  <li><span>実装品質</span><span>45</span></li>
+                  <li><span>UI/UX</span><span>25</span></li>
+                  <li><span>完成度</span><span>15</span></li>
+                  <li><span>テスト健全性</span><span>10</span></li>
+                  <li><span>コミット品質</span><span>5</span></li>
+                </ul>
+              </div>
+              <div class="snapshot-summary">主な指摘</div>
+              <ul class="issue-list">
+                <li>終了したプロジェクト一覧が存在せず、計画中/完了/進行中の切替やフィルタが未実装 (App.tsx:560-625)。</li>
+                <li>プロジェクトCRUDは名称とステータスのみで、指定フィールドが保存できない (App.tsx:276-306、types.ts:17-22)。</li>
+                <li>ブランチ固有のコミット履歴がなく、レビュー対象の実装が不明。</li>
+              </ul>
+              <div class="link-note">成果物: /home/t_miyazaki/dev/project-planner/.worktrees/task-1764853834033-310c6e</div>
+              <details class="snapshot-details">
+                <summary class="details-toggle">git diff / log</summary>
+                <pre>git diff --stat main..task/task-1764853834033-310c6e → (差分なし)
+git log --oneline main..task/task-1764853834033-310c6e → (追加コミットなし)</pre>
+              </details>
+            </td>
+            <td>
+              <div class="agent-meta">
+                <span class="status-badge status-badge--completed">評価完了</span>
+                <span class="agent-label">差分なし。要件の反映が確認できず。</span>
+              </div>
+              <div class="radar-wrapper">
+                <svg class="radar-svg" viewBox="0 0 140 140" role="img" aria-label="六角形チャート">
+                  <polygon class="radar-bg" points="70,10 121,40 121,100 70,130 19,100 19,40" />
+                  <polygon class="radar-path" points="" data-scores="[15,45,25,15,10,5]" />
+                </svg>
+                <ul class="metric-list">
+                  <li><span>要件適合度</span><span>15</span></li>
+                  <li><span>実装品質</span><span>45</span></li>
+                  <li><span>UI/UX</span><span>25</span></li>
+                  <li><span>完成度</span><span>15</span></li>
+                  <li><span>テスト健全性</span><span>10</span></li>
+                  <li><span>コミット品質</span><span>5</span></li>
+                </ul>
+              </div>
+              <div class="snapshot-summary">主な指摘</div>
+              <ul class="issue-list">
+                <li>プロジェクト設定画面そのものが存在せず、要求された各項目の入力・保存ができない (App.tsx:276-306、types.ts:17-22)。</li>
+                <li>ステータス別一覧ページやサイドバー連動の表示が未実装 (App.tsx:534-639)。</li>
+                <li>追加コミットなしのため実装追跡ができず、品質を示すエビデンスが不足。</li>
+              </ul>
+              <div class="link-note">成果物: /home/t_miyazaki/dev/project-planner/.worktrees/task-1764853834646-f500d3</div>
+              <details class="snapshot-details">
+                <summary class="details-toggle">git diff / log</summary>
+                <pre>git diff --stat main..task/task-1764853834646-f500d3 → (差分なし)
+git log --oneline main..task/task-1764853834646-f500d3 → (追加コミットなし)</pre>
+              </details>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <script>
+      const charts = document.querySelectorAll('.radar-path');
+      charts.forEach((path) => {
+        const scores = JSON.parse(path.dataset.scores || '[]');
+        const center = 70;
+        const maxRadius = 60;
+        const angleStep = Math.PI / 3;
+        const points = scores.map((score, index) => {
+          const r = maxRadius * (score / 100);
+          const angle = -Math.PI / 2 + index * angleStep;
+          const x = center + r * Math.cos(angle);
+          const y = center + r * Math.sin(angle);
+          return `${x},${y}`;
+        }).join(' ');
+        path.setAttribute('points', points);
+      });
+    </script>
+  </body>
+</html>
