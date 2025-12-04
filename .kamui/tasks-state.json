@@ -202,5 +202,29 @@
     "scoringConfig": null,
     "worktreePath": ".worktrees\\task-1764831839169-99ac54",
     "bookmarked": true
+  },
+  {
+    "id": "task-1764833201838-43e56e",
+    "name": "ClaudeCode1: ホームに進行中のプロジェクト情報を表示、また、次のプロジェクト数を表示：\"進行中\",\"完了\",\"計画中\",\"総数\"",
+    "model": "Claude Code",
+    "status": "working",
+    "importance": "medium",
+    "urgency": "medium",
+    "createdAt": "2025-12-04T07:26:41.838Z",
+    "updatedAt": "2025-12-04T08:08:40.792Z",
+    "requiresTerminal": true,
+    "createWorktree": true,
+    "branchName": "task/task-1764833201838-43e56e",
+    "baseBranch": "main",
+    "useTmux": true,
+    "aiCompetitionEntry": true,
+    "aiCompetitionResult": null,
+    "aiCompetitionGroupId": "comp-1764833201622-2ukfh1np",
+    "aiCompetitionGroupName": "ホームに進行中のプロジェクト情報を表示、また、次のプロジェクト数を表示：\"進行中\",\"完了\",\"計画中\",\"総数\"",
+    "aiCompetitionMonitor": false,
+    "monitorTargets": null,
+    "scoringConfig": null,
+    "worktreePath": ".worktrees\\task-1764833201838-43e56e",
+    "bookmarked": true
   }
 ]
