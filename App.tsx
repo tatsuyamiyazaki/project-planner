@@ -452,6 +452,60 @@ const App: React.FC = () => {
     }
   };
 
+  const sidebarControls = useMemo(() => {
+    if (activeMenuItem !== 'timeline') return null;
+
+    return (
+      <div className="space-y-3">
+        {selectedProjectId !== ALL_PROJECTS_ID && (
+          <button
+            onClick={() => setModalState({ type: 'ADD_TICKET' })}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-500 transition-colors"
+          >
+            <PlusIcon className="w-5 h-5" />
+            チケットを追加
+          </button>
+        )}
+        <button
+          onClick={() => setModalState({ type: 'MANAGE_ASSIGNEES' })}
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+        >
+          <UserGroupIcon className="w-5 h-5" />
+          <span>担当者管理</span>
+        </button>
+
+        <hr className="border-gray-200 dark:border-gray-700 my-2" />
+
+        <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">プロジェクト</span>
+            <button onClick={() => setModalState({ type: 'ADD_PROJECT' })} className="p-1 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400" title="プロジェクトを追加"><PlusIcon className="w-4 h-4" /></button>
+          </div>
+          <div className="relative">
+            <select
+              value={selectedProjectId}
+              onChange={(e) => setSelectedProjectId(e.target.value)}
+              className="w-full bg-gray-100 dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-md py-2 pl-2 pr-8 text-sm text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+            >
+              {projects.length === 0 && <option>プロジェクトなし</option>}
+              {projects.length > 1 && <option value={ALL_PROJECTS_ID}>全プロジェクト</option>}
+              {projects.map(p => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+            <FolderIcon className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          </div>
+          {currentProject && (
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={() => setModalState({ type: 'EDIT_PROJECT', project: currentProject })} className="flex items-center justify-center gap-1 py-1.5 bg-gray-200 dark:bg-gray-700 rounded hover:bg-gray-300 dark:hover:bg-gray-600 text-xs text-gray-700 dark:text-gray-200" title="プロジェクトを編集"><PencilIcon className="w-3 h-3" /> 編集</button>
+              <button onClick={() => setModalState({ type: 'DELETE_PROJECT', project: currentProject })} className="flex items-center justify-center gap-1 py-1.5 bg-gray-200 dark:bg-gray-700 rounded hover:bg-red-500 hover:text-white text-xs text-gray-700 dark:text-gray-200 transition-colors" title="プロジェクトを削除"><TrashIcon className="w-3 h-3" /> 削除</button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }, [activeMenuItem, selectedProjectId, projects, currentProject]);
+
   return (
     <>
     <Modal
@@ -461,61 +515,10 @@ const App: React.FC = () => {
     >
         {renderModalContent()}
     </Modal>
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans transition-colors duration-200">
-      <header className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700 flex-shrink-0 bg-white dark:bg-gray-900">
-        <div className="flex items-center gap-4">
-          <h1 className="text-xl font-bold text-gray-900 dark:text-white">プロジェクト プランナー</h1>
-          {activeMenuItem === 'timeline' && selectedProjectId !== ALL_PROJECTS_ID && (
-            <button
-              onClick={() => setModalState({type: 'ADD_TICKET'})}
-              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-500 transition-colors"
-            >
-              <PlusIcon className="w-5 h-5" />
-              チケットを追加
-            </button>
-          )}
-        </div>
-        {activeMenuItem === 'timeline' && (
-          <div className="flex items-center gap-4">
-              <button
-                  onClick={() => setModalState({ type: 'MANAGE_ASSIGNEES' })}
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
-                  title="担当者を管理"
-              >
-                  <UserGroupIcon className="w-5 h-5" />
-                  <span>担当者管理</span>
-              </button>
-              <div className="w-px h-6 bg-gray-300 dark:bg-gray-600" />
-              <span className="text-sm text-gray-500 dark:text-gray-400">プロジェクト:</span>
-               <div className="flex items-center gap-2">
-                  <div className="relative">
-                      <select
-                          value={selectedProjectId}
-                          onChange={(e) => setSelectedProjectId(e.target.value)}
-                          className="bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md py-2 pl-3 pr-8 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-                      >
-                          {projects.length === 0 && <option>プロジェクトがありません</option>}
-                          {projects.length > 1 && <option value={ALL_PROJECTS_ID}>全プロジェクト</option>}
-                          {projects.map(p => (
-                              <option key={p.id} value={p.id}>{p.name}</option>
-                          ))}
-                      </select>
-                      <FolderIcon className="absolute right-2 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                  </div>
-                  <button onClick={() => setModalState({type: 'ADD_PROJECT'})} className="p-2 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600" title="プロジェクトを追加"><PlusIcon className="w-5 h-5"/></button>
-                  {currentProject && <>
-                      <button onClick={() => setModalState({type: 'EDIT_PROJECT', project: currentProject})} className="p-2 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600" title="プロジェクトを編集"><PencilIcon className="w-5 h-5"/></button>
-                      <button onClick={() => setModalState({type: 'DELETE_PROJECT', project: currentProject})} className="p-2 bg-gray-200 dark:bg-gray-700 rounded-md hover:bg-red-500" title="プロジェクトを削除"><TrashIcon className="w-5 h-5"/></button>
-                  </>}
-               </div>
-          </div>
-        )}
-      </header>
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans transition-colors duration-200">
+      <Sidebar activeItem={activeMenuItem} onItemClick={setActiveMenuItem} extraContent={sidebarControls} />
 
-      <div className="flex flex-grow min-h-0">
-        <Sidebar activeItem={activeMenuItem} onItemClick={setActiveMenuItem} />
-
-        <main className="flex-grow flex p-4 gap-4 min-h-0">
+      <main className="flex-grow flex p-4 gap-4 min-h-0 overflow-hidden">
           {activeMenuItem === 'timeline' && (
             <>
               <div ref={leftPanelRef} onScroll={() => handleScroll('left')} style={{ width: `${sidebarWidth}px` }} className="flex-shrink-0 h-full overflow-y-auto overflow-x-hidden">
@@ -554,7 +557,6 @@ const App: React.FC = () => {
             </div>
           )}
         </main>
-      </div>
     </div>
     </>
   );
