@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback, useEffect, useRef } from 'react';
-import { Ticket, Project, Assignee } from './types';
+import { Ticket, Project, Assignee, ProjectStatus } from './types';
 import { PROJECTS, TICKETS, ASSIGNEES } from './constants';
 import TicketList, { TicketWithLevel } from './components/TicketList';
 import GanttChart from './components/GanttChart';
@@ -26,7 +26,7 @@ const App: React.FC = () => {
   const [selectedProjectId, setSelectedProjectId] = useState<string>(PROJECTS[0]?.id || '');
   
   const [modalState, setModalState] = useState<ModalState>({ type: 'NONE' });
-  const [activeMenuItem, setActiveMenuItem] = useState<MenuItemId>('projects');
+  const [activeMenuItem, setActiveMenuItem] = useState<MenuItemId>('home');
 
   // State for assignee management modal
   const [editingAssignee, setEditingAssignee] = useState<{id: string, name: string} | null>(null);
@@ -105,15 +105,15 @@ const App: React.FC = () => {
 
 
   // CRUD Handlers
-  const handleAddProject = (name: string) => {
-    const newProject: Project = { id: crypto.randomUUID(), name };
+  const handleAddProject = (name: string, status: ProjectStatus) => {
+    const newProject: Project = { id: crypto.randomUUID(), name, status };
     setProjects(prev => [...prev, newProject]);
     setSelectedProjectId(newProject.id);
     setModalState({ type: 'NONE' });
   };
-  
-  const handleEditProject = (id: string, name: string) => {
-    setProjects(prev => prev.map(p => p.id === id ? { ...p, name } : p));
+
+  const handleEditProject = (id: string, name: string, status: ProjectStatus) => {
+    setProjects(prev => prev.map(p => p.id === id ? { ...p, name, status } : p));
     setModalState({ type: 'NONE' });
   };
 
@@ -280,12 +280,25 @@ const App: React.FC = () => {
             <form onSubmit={(e) => {
                 e.preventDefault();
                 const name = (e.currentTarget.elements.namedItem('name') as HTMLInputElement).value;
+                const status = (e.currentTarget.elements.namedItem('status') as HTMLSelectElement).value as ProjectStatus;
                 if (name) {
-                    isEdit ? handleEditProject(project!.id, name) : handleAddProject(name);
+                    isEdit ? handleEditProject(project!.id, name, status) : handleAddProject(name, status);
                 }
             }}>
-                <label htmlFor="name" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">プロジェクト名</label>
-                <input type="text" id="name" name="name" defaultValue={project?.name || ''} required className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" autoFocus/>
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">プロジェクト名</label>
+                    <input type="text" id="name" name="name" defaultValue={project?.name || ''} required className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" autoFocus/>
+                  </div>
+                  <div>
+                    <label htmlFor="status" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">ステータス</label>
+                    <select id="status" name="status" defaultValue={project?.status || 'planning'} className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                      <option value="planning">計画中</option>
+                      <option value="in_progress">進行中</option>
+                      <option value="completed">完了</option>
+                    </select>
+                  </div>
+                </div>
                 <div className="mt-6 flex justify-end gap-3">
                     <button type="button" onClick={() => setModalState({ type: 'NONE' })} className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors">キャンセル</button>
                     <button type="submit" className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-500 transition-colors">保存</button>
@@ -544,11 +557,79 @@ const App: React.FC = () => {
             </>
           )}
 
-          {(activeMenuItem === 'home' || activeMenuItem === 'projects' || activeMenuItem === 'reports') && (
+          {activeMenuItem === 'home' && (
+            <div className="flex-grow p-4 overflow-auto">
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">ダッシュボード</h2>
+
+              {/* プロジェクト統計 */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400">総数</div>
+                  <div className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{projects.length}</div>
+                </div>
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400">進行中</div>
+                  <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1">
+                    {projects.filter(p => p.status === 'in_progress').length}
+                  </div>
+                </div>
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400">完了</div>
+                  <div className="text-3xl font-bold text-green-600 dark:text-green-400 mt-1">
+                    {projects.filter(p => p.status === 'completed').length}
+                  </div>
+                </div>
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
+                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400">計画中</div>
+                  <div className="text-3xl font-bold text-yellow-600 dark:text-yellow-400 mt-1">
+                    {projects.filter(p => p.status === 'planning').length}
+                  </div>
+                </div>
+              </div>
+
+              {/* 進行中のプロジェクト一覧 */}
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">進行中のプロジェクト</h3>
+                {projects.filter(p => p.status === 'in_progress').length === 0 ? (
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">進行中のプロジェクトはありません</p>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {projects.filter(p => p.status === 'in_progress').map(project => {
+                      const projectTicketCount = tickets.filter(t => t.projectId === project.id).length;
+                      return (
+                        <div
+                          key={project.id}
+                          onClick={() => {
+                            setSelectedProjectId(project.id);
+                            setActiveMenuItem('timeline');
+                          }}
+                          className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 cursor-pointer transition-all"
+                        >
+                          <div className="flex items-center gap-2 mb-3">
+                            <FolderIcon className="w-6 h-6 text-blue-500" />
+                            <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full">
+                              進行中
+                            </span>
+                          </div>
+                          <h4 className="font-semibold text-gray-900 dark:text-white mb-2 truncate" title={project.name}>
+                            {project.name}
+                          </h4>
+                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                            {projectTicketCount} チケット
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {(activeMenuItem === 'projects' || activeMenuItem === 'reports') && (
             <div className="flex-grow flex items-center justify-center">
               <div className="text-center text-gray-500 dark:text-gray-400">
                 <p className="text-lg font-medium">
-                  {activeMenuItem === 'home' && 'ホーム'}
                   {activeMenuItem === 'projects' && 'プロジェクト'}
                   {activeMenuItem === 'reports' && 'レポート'}
                 </p>

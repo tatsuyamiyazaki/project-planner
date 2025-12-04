@@ -14,7 +14,10 @@ export interface Ticket {
   sortOrder: number;
 }
 
+export type ProjectStatus = 'planning' | 'in_progress' | 'completed';
+
 export interface Project {
   id: string;
   name: string;
+  status: ProjectStatus;
 }
