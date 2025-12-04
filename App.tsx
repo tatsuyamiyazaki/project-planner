@@ -105,15 +105,15 @@ const App: React.FC = () => {
 
 
   // CRUD Handlers
-  const handleAddProject = (name: string, status: ProjectStatus) => {
-    const newProject: Project = { id: crypto.randomUUID(), name, status };
+  const handleAddProject = (data: Omit<Project, 'id'>) => {
+    const newProject: Project = { id: crypto.randomUUID(), ...data };
     setProjects(prev => [...prev, newProject]);
     setSelectedProjectId(newProject.id);
     setModalState({ type: 'NONE' });
   };
 
-  const handleEditProject = (id: string, name: string, status: ProjectStatus) => {
-    setProjects(prev => prev.map(p => p.id === id ? { ...p, name, status } : p));
+  const handleEditProject = (id: string, data: Omit<Project, 'id'>) => {
+    setProjects(prev => prev.map(p => p.id === id ? { ...p, ...data } : p));
     setModalState({ type: 'NONE' });
   };
 
@@ -276,27 +276,77 @@ const App: React.FC = () => {
     if (modalState.type === 'ADD_PROJECT' || modalState.type === 'EDIT_PROJECT') {
         const isEdit = modalState.type === 'EDIT_PROJECT';
         const project = isEdit ? modalState.project : null;
+
+        const formatDateForInput = (date: Date | null) => date ? date.toISOString().split('T')[0] : '';
+
         return (
             <form onSubmit={(e) => {
                 e.preventDefault();
-                const name = (e.currentTarget.elements.namedItem('name') as HTMLInputElement).value;
-                const status = (e.currentTarget.elements.namedItem('status') as HTMLSelectElement).value as ProjectStatus;
+                const form = e.currentTarget;
+                const name = (form.elements.namedItem('name') as HTMLInputElement).value;
+                const description = (form.elements.namedItem('description') as HTMLTextAreaElement).value;
+                const manager = (form.elements.namedItem('manager') as HTMLInputElement).value;
+                const estimatedHoursVal = (form.elements.namedItem('estimatedHours') as HTMLInputElement).value;
+                const estimatedBudgetVal = (form.elements.namedItem('estimatedBudget') as HTMLInputElement).value;
+                const startDateVal = (form.elements.namedItem('startDate') as HTMLInputElement).value;
+                const endDateVal = (form.elements.namedItem('endDate') as HTMLInputElement).value;
+                const notes = (form.elements.namedItem('notes') as HTMLTextAreaElement).value;
+                const status = (form.elements.namedItem('status') as HTMLSelectElement).value as ProjectStatus;
+
+                const estimatedHours = estimatedHoursVal ? parseFloat(estimatedHoursVal) : null;
+                const estimatedBudget = estimatedBudgetVal ? parseFloat(estimatedBudgetVal) : null;
+                const startDate = startDateVal ? new Date(startDateVal) : null;
+                const endDate = endDateVal ? new Date(endDateVal) : null;
+
                 if (name) {
-                    isEdit ? handleEditProject(project!.id, name, status) : handleAddProject(name, status);
+                    const data = { name, description, manager, estimatedHours, estimatedBudget, startDate, endDate, notes, status };
+                    isEdit ? handleEditProject(project!.id, data) : handleAddProject(data);
                 }
             }}>
-                <div className="space-y-4">
+                <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">プロジェクト名</label>
+                    <label htmlFor="name" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">プロジェクト名 <span className="text-red-500">*</span></label>
                     <input type="text" id="name" name="name" defaultValue={project?.name || ''} required className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" autoFocus/>
                   </div>
                   <div>
-                    <label htmlFor="status" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-2">ステータス</label>
+                    <label htmlFor="description" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">プロジェクト概要</label>
+                    <textarea id="description" name="description" defaultValue={project?.description || ''} rows={3} className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"/>
+                  </div>
+                  <div>
+                    <label htmlFor="manager" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">プロジェクトマネージャー</label>
+                    <input type="text" id="manager" name="manager" defaultValue={project?.manager || ''} className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="estimatedHours" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">予定工数（時間）</label>
+                      <input type="number" id="estimatedHours" name="estimatedHours" defaultValue={project?.estimatedHours ?? ''} min="0" step="0.5" className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                    </div>
+                    <div>
+                      <label htmlFor="estimatedBudget" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">見積金額（円）</label>
+                      <input type="number" id="estimatedBudget" name="estimatedBudget" defaultValue={project?.estimatedBudget ?? ''} min="0" className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label htmlFor="startDate" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">開始日</label>
+                      <input type="date" id="startDate" name="startDate" defaultValue={formatDateForInput(project?.startDate || null)} className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                    </div>
+                    <div>
+                      <label htmlFor="endDate" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">終了日</label>
+                      <input type="date" id="endDate" name="endDate" defaultValue={formatDateForInput(project?.endDate || null)} className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                    </div>
+                  </div>
+                  <div>
+                    <label htmlFor="status" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">ステータス</label>
                     <select id="status" name="status" defaultValue={project?.status || 'planning'} className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                       <option value="planning">計画中</option>
                       <option value="in_progress">進行中</option>
                       <option value="completed">完了</option>
                     </select>
+                  </div>
+                  <div>
+                    <label htmlFor="notes" className="block text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">備考</label>
+                    <textarea id="notes" name="notes" defaultValue={project?.notes || ''} rows={3} className="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"/>
                   </div>
                 </div>
                 <div className="mt-6 flex justify-end gap-3">
@@ -626,13 +676,211 @@ const App: React.FC = () => {
             </div>
           )}
 
-          {(activeMenuItem === 'projects' || activeMenuItem === 'reports') && (
+          {activeMenuItem === 'projects' && (
+            <div className="flex-grow p-4 overflow-auto">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">プロジェクト管理</h2>
+                <button
+                  onClick={() => setModalState({ type: 'ADD_PROJECT' })}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-500 transition-colors"
+                >
+                  <PlusIcon className="w-5 h-5" />
+                  新規作成
+                </button>
+              </div>
+
+              {/* 進行中のプロジェクト */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <span className="w-3 h-3 bg-blue-500 rounded-full"></span>
+                  進行中 ({projects.filter(p => p.status === 'in_progress').length})
+                </h3>
+                {projects.filter(p => p.status === 'in_progress').length === 0 ? (
+                  <p className="text-gray-500 dark:text-gray-400 text-sm ml-5">進行中のプロジェクトはありません</p>
+                ) : (
+                  <div className="flex flex-wrap gap-4">
+                    {projects.filter(p => p.status === 'in_progress').map(project => {
+                      const projectTicketCount = tickets.filter(t => t.projectId === project.id).length;
+                      const formatDate = (date: Date | null) => date ? date.toLocaleDateString('ja-JP') : '-';
+                      return (
+                        <div
+                          key={project.id}
+                          className="w-80 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all"
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <FolderIcon className="w-5 h-5 text-blue-500" />
+                              <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full">
+                                進行中
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <button onClick={() => setModalState({ type: 'EDIT_PROJECT', project })} className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" title="編集"><PencilIcon className="w-4 h-4" /></button>
+                              <button onClick={() => setModalState({ type: 'DELETE_PROJECT', project })} className="p-1 text-gray-500 dark:text-gray-400 hover:text-red-500" title="削除"><TrashIcon className="w-4 h-4" /></button>
+                            </div>
+                          </div>
+                          <h4 className="text-base font-semibold text-gray-900 dark:text-white mb-1 truncate" title={project.name}>
+                            {project.name}
+                          </h4>
+                          {project.description && (
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">{project.description}</p>
+                          )}
+                          <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm text-gray-600 dark:text-gray-400 mb-2">
+                            <p><span className="text-gray-500 dark:text-gray-500">PM:</span> {project.manager || '-'}</p>
+                            <p><span className="text-gray-500 dark:text-gray-500">チケット:</span> {projectTicketCount}</p>
+                            <p><span className="text-gray-500 dark:text-gray-500">開始:</span> {formatDate(project.startDate)}</p>
+                            <p><span className="text-gray-500 dark:text-gray-500">終了:</span> {formatDate(project.endDate)}</p>
+                            <p><span className="text-gray-500 dark:text-gray-500">工数:</span> {project.estimatedHours != null ? `${project.estimatedHours.toLocaleString()}h` : '-'}</p>
+                            <p><span className="text-gray-500 dark:text-gray-500">見積:</span> {project.estimatedBudget != null ? `¥${project.estimatedBudget.toLocaleString()}` : '-'}</p>
+                          </div>
+                          {project.notes && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 line-clamp-2 border-t border-gray-200 dark:border-gray-700 pt-2">
+                              <span className="text-gray-400 dark:text-gray-500">備考:</span> {project.notes}
+                            </p>
+                          )}
+                          <button
+                            onClick={() => { setSelectedProjectId(project.id); setActiveMenuItem('timeline'); }}
+                            className="w-full text-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
+                          >
+                            タイムラインを表示 →
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* 計画中のプロジェクト */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <span className="w-3 h-3 bg-yellow-500 rounded-full"></span>
+                  計画中 ({projects.filter(p => p.status === 'planning').length})
+                </h3>
+                {projects.filter(p => p.status === 'planning').length === 0 ? (
+                  <p className="text-gray-500 dark:text-gray-400 text-sm ml-5">計画中のプロジェクトはありません</p>
+                ) : (
+                  <div className="flex flex-wrap gap-4">
+                    {projects.filter(p => p.status === 'planning').map(project => {
+                      const projectTicketCount = tickets.filter(t => t.projectId === project.id).length;
+                      const formatDate = (date: Date | null) => date ? date.toLocaleDateString('ja-JP') : '-';
+                      return (
+                        <div
+                          key={project.id}
+                          className="w-80 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all"
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <FolderIcon className="w-5 h-5 text-yellow-500" />
+                              <span className="px-2 py-0.5 text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200 rounded-full">
+                                計画中
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <button onClick={() => setModalState({ type: 'EDIT_PROJECT', project })} className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" title="編集"><PencilIcon className="w-4 h-4" /></button>
+                              <button onClick={() => setModalState({ type: 'DELETE_PROJECT', project })} className="p-1 text-gray-500 dark:text-gray-400 hover:text-red-500" title="削除"><TrashIcon className="w-4 h-4" /></button>
+                            </div>
+                          </div>
+                          <h4 className="text-base font-semibold text-gray-900 dark:text-white mb-1 truncate" title={project.name}>
+                            {project.name}
+                          </h4>
+                          {project.description && (
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">{project.description}</p>
+                          )}
+                          <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm text-gray-600 dark:text-gray-400 mb-2">
+                            <p><span className="text-gray-500 dark:text-gray-500">PM:</span> {project.manager || '-'}</p>
+                            <p><span className="text-gray-500 dark:text-gray-500">チケット:</span> {projectTicketCount}</p>
+                            <p><span className="text-gray-500 dark:text-gray-500">開始:</span> {formatDate(project.startDate)}</p>
+                            <p><span className="text-gray-500 dark:text-gray-500">終了:</span> {formatDate(project.endDate)}</p>
+                            <p><span className="text-gray-500 dark:text-gray-500">工数:</span> {project.estimatedHours != null ? `${project.estimatedHours.toLocaleString()}h` : '-'}</p>
+                            <p><span className="text-gray-500 dark:text-gray-500">見積:</span> {project.estimatedBudget != null ? `¥${project.estimatedBudget.toLocaleString()}` : '-'}</p>
+                          </div>
+                          {project.notes && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 line-clamp-2 border-t border-gray-200 dark:border-gray-700 pt-2">
+                              <span className="text-gray-400 dark:text-gray-500">備考:</span> {project.notes}
+                            </p>
+                          )}
+                          <button
+                            onClick={() => { setSelectedProjectId(project.id); setActiveMenuItem('timeline'); }}
+                            className="w-full text-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
+                          >
+                            タイムラインを表示 →
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* 完了したプロジェクト */}
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                  <span className="w-3 h-3 bg-green-500 rounded-full"></span>
+                  完了 ({projects.filter(p => p.status === 'completed').length})
+                </h3>
+                {projects.filter(p => p.status === 'completed').length === 0 ? (
+                  <p className="text-gray-500 dark:text-gray-400 text-sm ml-5">完了したプロジェクトはありません</p>
+                ) : (
+                  <div className="flex flex-wrap gap-4">
+                    {projects.filter(p => p.status === 'completed').map(project => {
+                      const projectTicketCount = tickets.filter(t => t.projectId === project.id).length;
+                      const formatDate = (date: Date | null) => date ? date.toLocaleDateString('ja-JP') : '-';
+                      return (
+                        <div
+                          key={project.id}
+                          className="w-80 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md transition-all opacity-80"
+                        >
+                          <div className="flex items-start justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <FolderIcon className="w-5 h-5 text-green-500" />
+                              <span className="px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 rounded-full">
+                                完了
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <button onClick={() => setModalState({ type: 'EDIT_PROJECT', project })} className="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" title="編集"><PencilIcon className="w-4 h-4" /></button>
+                              <button onClick={() => setModalState({ type: 'DELETE_PROJECT', project })} className="p-1 text-gray-500 dark:text-gray-400 hover:text-red-500" title="削除"><TrashIcon className="w-4 h-4" /></button>
+                            </div>
+                          </div>
+                          <h4 className="text-base font-semibold text-gray-900 dark:text-white mb-1 truncate" title={project.name}>
+                            {project.name}
+                          </h4>
+                          {project.description && (
+                            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2 line-clamp-2">{project.description}</p>
+                          )}
+                          <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm text-gray-600 dark:text-gray-400 mb-2">
+                            <p><span className="text-gray-500 dark:text-gray-500">PM:</span> {project.manager || '-'}</p>
+                            <p><span className="text-gray-500 dark:text-gray-500">チケット:</span> {projectTicketCount}</p>
+                            <p><span className="text-gray-500 dark:text-gray-500">開始:</span> {formatDate(project.startDate)}</p>
+                            <p><span className="text-gray-500 dark:text-gray-500">終了:</span> {formatDate(project.endDate)}</p>
+                            <p><span className="text-gray-500 dark:text-gray-500">工数:</span> {project.estimatedHours != null ? `${project.estimatedHours.toLocaleString()}h` : '-'}</p>
+                            <p><span className="text-gray-500 dark:text-gray-500">見積:</span> {project.estimatedBudget != null ? `¥${project.estimatedBudget.toLocaleString()}` : '-'}</p>
+                          </div>
+                          {project.notes && (
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2 line-clamp-2 border-t border-gray-200 dark:border-gray-700 pt-2">
+                              <span className="text-gray-400 dark:text-gray-500">備考:</span> {project.notes}
+                            </p>
+                          )}
+                          <button
+                            onClick={() => { setSelectedProjectId(project.id); setActiveMenuItem('timeline'); }}
+                            className="w-full text-center text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline"
+                          >
+                            タイムラインを表示 →
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeMenuItem === 'reports' && (
             <div className="flex-grow flex items-center justify-center">
               <div className="text-center text-gray-500 dark:text-gray-400">
-                <p className="text-lg font-medium">
-                  {activeMenuItem === 'projects' && 'プロジェクト'}
-                  {activeMenuItem === 'reports' && 'レポート'}
-                </p>
+                <p className="text-lg font-medium">レポート</p>
                 <p className="text-sm mt-2">このページは準備中です</p>
               </div>
             </div>

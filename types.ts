@@ -19,5 +19,12 @@ export type ProjectStatus = 'planning' | 'in_progress' | 'completed';
 export interface Project {
   id: string;
   name: string;
+  description: string;
+  manager: string;
+  estimatedHours: number | null;
+  estimatedBudget: number | null;
+  startDate: Date | null;
+  endDate: Date | null;
+  notes: string;
   status: ProjectStatus;
 }
