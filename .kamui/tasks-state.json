@@ -403,40 +403,5 @@
     "monitorTargets": null,
     "scoringConfig": null,
     "worktreePath": ".worktrees\\task-1764979294383-ac1236"
-  },
-  {
-    "id": "task-1764979298672-57b5fb",
-    "name": "🔍Monitor: .kiro/specs/dashboard-status/tasks.md を参照して実装を開始\n要件は .kiro/specs/dashboard-status/requirements.md 、設計は .kiro/specs/dashboard-status/design.md を参照",
-    "model": "codex",
-    "status": "working",
-    "importance": "medium",
-    "urgency": "medium",
-    "createdAt": "2025-12-06T00:01:38.672Z",
-    "updatedAt": "2025-12-06T00:01:38.672Z",
-    "requiresTerminal": true,
-    "createWorktree": true,
-    "branchName": "task/task-1764979298672-57b5fb",
-    "baseBranch": "main",
-    "useTmux": true,
-    "aiCompetitionEntry": false,
-    "aiCompetitionResult": null,
-    "aiCompetitionGroupId": "comp-1764979294176-dte4mm2r",
-    "aiCompetitionGroupName": ".kiro/specs/dashboard-status/tasks.md を参照して実装を開始\n要件は .kiro/specs/dashboard-status/requirements.md 、設計は .kiro/specs/dashboard-status/design.md を参照",
-    "aiCompetitionMonitor": true,
-    "monitorTargets": [
-      "task-1764979294178-f48d10",
-      "task-1764979294577-7ed2e4",
-      "task-1764979294383-ac1236"
-    ],
-    "scoringConfig": {
-      "auditEnabled": false,
-      "auditPrompt": "",
-      "enabled": true,
-      "prompt": "要件実装度/コスト/実装品質/UXと明瞭度/拡張性/安定性",
-      "rubric": "medals",
-      "model": "codex"
-    },
-    "autoEvaluationNotBefore": 1764979354176,
-    "worktreePath": ".worktrees\\task-1764979298672-57b5fb"
   }
 ]
