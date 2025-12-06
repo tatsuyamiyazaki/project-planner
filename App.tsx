@@ -3,9 +3,11 @@ import { Ticket, Project, Assignee, ProjectStatus } from './types';
 import { PROJECTS, TICKETS, ASSIGNEES } from './constants';
 import TicketList, { TicketWithLevel } from './components/TicketList';
 import GanttChart from './components/GanttChart';
+import Dashboard from './components/Dashboard';
 import { FolderIcon, PlusIcon, PencilIcon, TrashIcon, UserGroupIcon, CheckIcon } from './components/Icons';
 import Modal from './components/Modal';
 import Sidebar, { MenuItemId } from './components/Sidebar';
+import { useDashboardStats } from './hooks/useDashboardStats';
 
 const ALL_PROJECTS_ID = '__ALL_PROJECTS__';
 
@@ -59,6 +61,9 @@ const App: React.FC = () => {
   const currentProject = useMemo(() => projects.find(p => p.id === selectedProjectId), [projects, selectedProjectId]);
 
   const projectTickets = useMemo(() => tickets.filter(t => t.projectId === selectedProjectId), [tickets, selectedProjectId]);
+
+  // ダッシュボード集計
+  const dashboardStats = useDashboardStats(projects, tickets, assignees);
 
   const visibleTickets = useMemo((): TicketWithLevel[] => {
     const childrenMap = new Map<string | null, string[]>();
@@ -608,72 +613,15 @@ const App: React.FC = () => {
           )}
 
           {activeMenuItem === 'home' && (
-            <div className="flex-grow p-4 overflow-auto">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">ダッシュボード</h2>
-
-              {/* プロジェクト統計 */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400">総数</div>
-                  <div className="text-3xl font-bold text-gray-900 dark:text-white mt-1">{projects.length}</div>
-                </div>
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400">進行中</div>
-                  <div className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1">
-                    {projects.filter(p => p.status === 'in_progress').length}
-                  </div>
-                </div>
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400">完了</div>
-                  <div className="text-3xl font-bold text-green-600 dark:text-green-400 mt-1">
-                    {projects.filter(p => p.status === 'completed').length}
-                  </div>
-                </div>
-                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-                  <div className="text-sm font-medium text-gray-500 dark:text-gray-400">計画中</div>
-                  <div className="text-3xl font-bold text-yellow-600 dark:text-yellow-400 mt-1">
-                    {projects.filter(p => p.status === 'planning').length}
-                  </div>
-                </div>
-              </div>
-
-              {/* 進行中のプロジェクト一覧 */}
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">進行中のプロジェクト</h3>
-                {projects.filter(p => p.status === 'in_progress').length === 0 ? (
-                  <p className="text-gray-500 dark:text-gray-400 text-sm">進行中のプロジェクトはありません</p>
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {projects.filter(p => p.status === 'in_progress').map(project => {
-                      const projectTicketCount = tickets.filter(t => t.projectId === project.id).length;
-                      return (
-                        <div
-                          key={project.id}
-                          onClick={() => {
-                            setSelectedProjectId(project.id);
-                            setActiveMenuItem('timeline');
-                          }}
-                          className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 hover:shadow-md hover:border-blue-300 dark:hover:border-blue-600 cursor-pointer transition-all"
-                        >
-                          <div className="flex items-center gap-2 mb-3">
-                            <FolderIcon className="w-6 h-6 text-blue-500" />
-                            <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 rounded-full">
-                              進行中
-                            </span>
-                          </div>
-                          <h4 className="font-semibold text-gray-900 dark:text-white mb-2 truncate" title={project.name}>
-                            {project.name}
-                          </h4>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
-                            {projectTicketCount} チケット
-                          </p>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            </div>
+            <Dashboard
+              projects={projects}
+              assignees={assignees}
+              dashboardStats={dashboardStats}
+              onProjectSelect={(projectId) => {
+                setSelectedProjectId(projectId);
+                setActiveMenuItem('timeline');
+              }}
+            />
           )}
 
           {activeMenuItem === 'projects' && (
