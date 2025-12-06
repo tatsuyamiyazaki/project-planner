@@ -27,3 +27,4 @@ dist-ssr
 .kamui/system-graph-state.json
 .kamui/gantte/test.yaml
 .kamui/model-versions-cache.json
+.kamui/manager/*
